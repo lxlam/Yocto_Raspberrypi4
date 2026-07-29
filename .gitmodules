@@ -1,0 +1,3 @@
+[submodule "rasp/poky"]
+	path = rasp/poky
+	url = https://yoctoproject.org
