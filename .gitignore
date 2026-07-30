@@ -1,0 +1,19 @@
+# Yocto build
+rasp/poky/build/
+rasp/poky/downloads/
+rasp/poky/sstate-cache/
+rasp/poky/tmp/
+
+# BitBake generated
+rasp/poky/bitbake/lib/bb/pysh/pyshtables.py
+rasp/poky/bitbake/lib/bb/tests/fetch-testdata/downloads/
+
+# Python
+__pycache__/
+*.pyc
+
+# Editor
+.vscode/
+
+# Logs
+*.log
