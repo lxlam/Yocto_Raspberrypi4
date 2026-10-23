@@ -1,0 +1,14 @@
+[Unit]
+Description=OJT Video Player Core (GStreamer + D-Bus)
+Requires=dbus.service
+Wants=media-manager.service
+After=dbus.service media-manager.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/video-player.sh
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

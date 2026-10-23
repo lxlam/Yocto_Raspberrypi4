@@ -1,0 +1,13 @@
+[Unit]
+Description=OJT Media Manager (USB detect, mount, scan, D-Bus)
+Requires=dbus.service
+After=dbus.service systemd-udevd.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/media-manager.sh
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
