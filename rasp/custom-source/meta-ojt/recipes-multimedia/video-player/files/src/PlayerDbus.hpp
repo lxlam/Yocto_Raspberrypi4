@@ -7,7 +7,7 @@
  *      n == 0 / media-manager gone -> PlayerCore::clearPlaylist()
  *
  * 2. Service org.automotive.VideoPlayer  (called by gdbus now, GUI / CAN later)
- *      Play Pause Stop Next Previous PlayIndex(i) Seek(x) GetStatus()
+ *      Play Pause Stop Next Previous PlayIndex(i) Seek(x) SetVideoWindow(t) GetStatus()
  *      signal StatusChanged(s state, i index, s title)
  */
 #include "PlayerCore.hpp"

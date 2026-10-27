@@ -31,6 +31,10 @@ static const char introspection_xml[] =
     "      <arg name='offset_ms' type='x' direction='in'/>"
     "      <arg name='ok' type='b' direction='out'/>"
     "    </method>"
+    "    <method name='SetVideoWindow'>"                         /* X11 window id of GUI video box */
+    "      <arg name='window_id' type='t' direction='in'/>"
+    "      <arg name='ok' type='b' direction='out'/>"
+    "    </method>"
     "    <method name='GetStatus'>"
     "      <arg name='state' type='s' direction='out'/>"
     "      <arg name='index' type='i' direction='out'/>"
@@ -210,6 +214,11 @@ static void handle_method_call(GDBusConnection*, const gchar* sender, const gcha
         gint32 index = 0;
         g_variant_get(params, "(i)", &index);
         ok = index >= 0 && g_player->playIndex(static_cast<std::size_t>(index));
+    } else if (strcmp(method, "SetVideoWindow") == 0) {
+        guint64 window_id = 0;
+        g_variant_get(params, "(t)", &window_id);
+        g_player->setVideoWindow(static_cast<std::uintptr_t>(window_id));
+        ok = true;
     } else if (strcmp(method, "Seek") == 0) {
         gint64 offset = 0;
         g_variant_get(params, "(x)", &offset);

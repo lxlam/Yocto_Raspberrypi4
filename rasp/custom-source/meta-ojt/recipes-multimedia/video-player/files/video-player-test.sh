@@ -10,6 +10,7 @@
 #   play | pause | stop | next | prev
 #   index <n>      PlayIndex(n)
 #   seek <ms>      Seek relative, e.g. seek 10000 / seek -10000
+#   window <id>    SetVideoWindow (X11 window id, 0 = own window)
 
 BUS=${BUS:---system}
 DEST=org.automotive.VideoPlayer
@@ -33,8 +34,9 @@ case "$1" in
     prev)    call Previous ;;
     index)   call PlayIndex "${2:-0}" ;;
     seek)    call Seek -- "${2:-10000}" ;;
+    window)  call SetVideoWindow "${2:-0}" ;;
     *)
-        sed -n '2,13p' "$0"
+        sed -n '2,14p' "$0"
         exit 1
         ;;
 esac

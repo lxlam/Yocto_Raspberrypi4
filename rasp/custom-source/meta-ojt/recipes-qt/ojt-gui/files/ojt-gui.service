@@ -1,0 +1,16 @@
+[Unit]
+Description=OJT GUI (Qt5 on X11, HDMI)
+Wants=media-manager.service video-player.service
+After=systemd-user-sessions.service dbus.service media-manager.service video-player.service
+# X uses console tty1 -> stop the login prompt there
+Conflicts=getty@tty1.service
+After=getty@tty1.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/ojt-gui.sh
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

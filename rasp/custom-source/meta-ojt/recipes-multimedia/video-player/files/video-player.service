@@ -6,6 +6,8 @@ After=dbus.service media-manager.service
 
 [Service]
 Type=simple
+# X server started by ojt-gui.service (xinit) -> video is drawn into the GUI window
+Environment=DISPLAY=:0
 ExecStart=/usr/bin/video-player.sh
 Restart=on-failure
 RestartSec=2

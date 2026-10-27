@@ -1,4 +1,4 @@
-SUMMARY = "OJT Video Player Core (GStreamer) controlled via D-Bus"
+SUMMARY = "OJT Video Player Core (GStreamer) controlled via D-Bus, draws into the GUI window"
 DESCRIPTION = "Gets the playlist from media-manager and exposes org.automotive.VideoPlayer"
 LICENSE = "CLOSED"
 
@@ -19,9 +19,11 @@ inherit cmake pkgconfig systemd
 
 EXTRA_OECMAKE += "-DBUILD_PLAYER_TEST=ON"
 
-DEPENDS = "gstreamer1.0 glib-2.0"
+# gstreamer1.0-plugins-base: libgstvideo (GstVideoOverlay = draw into the GUI window)
+DEPENDS = "gstreamer1.0 gstreamer1.0-plugins-base glib-2.0"
 
-# playbin + demuxers (mp4 = isomp4, mkv = matroska) + parsers + video sinks.
+# playbin + demuxers (mp4 = isomp4, mkv = matroska) + parsers +
+# X11 video sinks (xvimagesink, ximagesink, glimagesink are in plugins-base).
 # RPi4 H.264 hardware decoder = v4l2h264dec (in plugins-good video4linux2).
 RDEPENDS:${PN} += " \
     dbus glib-2.0-utils \

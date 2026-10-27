@@ -7,5 +7,6 @@ IMAGE_INSTALL += " \
     network-config \
     media-manager \
     video-player \
-    video-player-testdata \
+    ojt-gui \
+    kernel-modules \
 "

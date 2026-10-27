@@ -6,8 +6,9 @@ PlayerCore::PlayerCore(std::unique_ptr<MediaBackend> backend)
     : backend_(std::move(backend)) {
     if (backend_) {
         backend_->setEventCallback(
-            [this](BackendEvent event, const std::string& detail) {
-                handleBackendEvent(event, detail);
+            [this](BackendEvent event, const std::string& detail,
+                   std::uint64_t generation) {
+                handleBackendEvent(event, detail, generation);
             });
     }
 }
@@ -76,7 +77,14 @@ bool PlayerCore::playLocked() {
  
 bool PlayerCore::play() {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
+    // After an error the pipeline is broken -> load the current media again
+    if (state_ == PlayerState::ERROR && !loadCurrentMediaLocked()) return false;
     return playLocked();
+}
+
+void PlayerCore::setVideoWindow(std::uintptr_t handle) {
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (backend_) backend_->setVideoWindow(handle);
 }
  
 bool PlayerCore::playIndex(std::size_t index) {
@@ -191,8 +199,15 @@ bool PlayerCore::seekBackward(int64_t milliseconds) {
 }
  
 void PlayerCore::handleBackendEvent(
-    BackendEvent event, const std::string& detail) {
+    BackendEvent event, const std::string& detail, std::uint64_t generation) {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
+
+    // Event from a media that was already stopped/replaced (e.g. USB pulled out,
+    // new playlist loaded) -> ignore it, otherwise the new media would get "ERROR".
+    if (!backend_ || generation != backend_->generation() || playlist_.empty()) {
+        std::cout << "[PlayerCore] Ignore old backend event\n";
+        return;
+    }
  
     if (event == BackendEvent::EOS) {
         std::cout << "[PlayerCore] EOS: auto-next\n";

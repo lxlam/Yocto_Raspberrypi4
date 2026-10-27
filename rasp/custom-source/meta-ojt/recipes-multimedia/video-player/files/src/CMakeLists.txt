@@ -8,7 +8,7 @@ option(BUILD_PLAYER_TEST "Build separate UART/CLI test executable" ON)
 
 find_package(PkgConfig REQUIRED)
 find_package(Threads REQUIRED)
-pkg_check_modules(GST REQUIRED IMPORTED_TARGET gstreamer-1.0)
+pkg_check_modules(GST REQUIRED IMPORTED_TARGET gstreamer-1.0 gstreamer-video-1.0)
 pkg_check_modules(GIO REQUIRED IMPORTED_TARGET gio-2.0)
 
 # Player logic shared by the daemon and the CLI test

@@ -25,6 +25,7 @@ public:
  
     bool play();
     bool playIndex(std::size_t index);   // load + play track at index
+    void setVideoWindow(std::uintptr_t handle);  // X11 window id from the GUI
     bool pause();
     bool stop();
     bool next();
@@ -42,7 +43,8 @@ public:
 private:
     bool loadCurrentMediaLocked();
     bool playLocked();
-    void handleBackendEvent(BackendEvent event, const std::string& detail);
+    void handleBackendEvent(BackendEvent event, const std::string& detail,
+                            std::uint64_t generation);
  
     std::unique_ptr<MediaBackend> backend_;
     std::vector<MediaInfo> playlist_;
