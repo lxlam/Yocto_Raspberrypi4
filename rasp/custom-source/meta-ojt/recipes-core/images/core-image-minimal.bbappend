@@ -10,4 +10,5 @@ IMAGE_INSTALL += " \
     ojt-gui \
     kernel-modules \
     can-service \
+    can-service-test \
 "

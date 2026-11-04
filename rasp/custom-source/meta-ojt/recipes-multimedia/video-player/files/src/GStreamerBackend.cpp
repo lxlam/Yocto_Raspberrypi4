@@ -177,13 +177,19 @@ void GStreamerBackend::chooseVideoSink() {
 }
 
 void GStreamerBackend::setVideoWindow(std::uintptr_t handle) {
+    const bool sameWindow = (handle == windowHandle_);
     windowHandle_ = handle;
     if (player_) {
         // playbin forwards the window id to its video sink
         gst_video_overlay_set_window_handle(GST_VIDEO_OVERLAY(player_),
                                             static_cast<guintptr>(handle));
+        // The GUI sends the SAME window id again after the video box changed size
+        // (e.g. full screen). handle-events is FALSE, so the sink does not see the
+        // new size by itself: expose() makes it re-read the size and redraw.
+        gst_video_overlay_expose(GST_VIDEO_OVERLAY(player_));
     }
-    std::cout << "[GStreamerBackend] Video window = 0x" << std::hex << handle << std::dec << "\n";
+    if (!sameWindow)
+        std::cout << "[GStreamerBackend] Video window = 0x" << std::hex << handle << std::dec << "\n";
 }
 
 bool GStreamerBackend::load(const std::string& path) {
