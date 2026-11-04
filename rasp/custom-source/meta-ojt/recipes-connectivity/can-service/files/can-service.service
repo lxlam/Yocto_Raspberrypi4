@@ -1,0 +1,14 @@
+[Unit]
+Description=OJT CAN service (CAN commands -> D-Bus VideoPlayer, status -> CAN)
+Requires=dbus.service
+Wants=video-player.service media-manager.service systemd-networkd.service
+After=dbus.service systemd-networkd.service video-player.service media-manager.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/can-service.sh
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

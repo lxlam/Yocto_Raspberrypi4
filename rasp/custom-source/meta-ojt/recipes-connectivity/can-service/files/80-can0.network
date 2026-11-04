@@ -1,0 +1,13 @@
+# can0 = MCP2515 on SPI0.0 (dtoverlay mcp2515-can0, see rpi-config_%.bbappend)
+# Must match the STM32 node: 500 kbit/s, sample point 75 %.
+[Match]
+Name=can0
+
+[Link]
+RequiredForOnline=no
+
+[CAN]
+BitRate=500K
+SamplePoint=75%
+# automatic recovery 100 ms after bus-off
+RestartSec=100ms

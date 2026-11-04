@@ -9,4 +9,5 @@ IMAGE_INSTALL += " \
     video-player \
     ojt-gui \
     kernel-modules \
+    can-service \
 "
