@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OJT Phần cứng</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: technical handbook — sticky table of contents on the left, one reading column on the right.
+   Each process has its own colour, used the same way in every diagram and table. */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #17202b;
+  --muted: #5a6573;
+  --line: #d9dee5;
+  --accent: #1d5fd1;
+  --mm: #b86b00;      /* media-manager */
+  --vp: #1d5fd1;      /* video-player  */
+  --gui: #1f8a5b;     /* ojt-gui       */
+  --can: #7a3fb8;     /* can-service + Arduino node */
+  --can-bg: #f1e8fb;
+  --bad: #c2352b;
+  --code-bg: #eef1f5;
+  --mm-bg: #fdf1dd; --vp-bg: #e3ecfb; --gui-bg: #e0f3ea; --bad-bg: #fbe4e2; --note-bg: #fff7e6; --paper: #ffffff;
+  --font-body: "Be Vietnam Pro", "Segoe UI", "Noto Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Mono", Consolas, "DejaVu Sans Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151b; --surface: #181d25; --ink: #e5e9ef; --muted: #9aa5b3; --line: #2b323d;
+    --accent: #6ea2ff; --mm: #f0a43a; --vp: #6ea2ff; --gui: #4fc68e; --can: #b48af0; --can-bg: #2c1f42; --bad: #ff7a6e; --code-bg: #1f252f;
+    --mm-bg: #3a2a12; --vp-bg: #18284a; --gui-bg: #123423; --bad-bg: #43201d; --note-bg: #3a3220; --paper: #f4f6f9;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151b; --surface: #181d25; --ink: #e5e9ef; --muted: #9aa5b3; --line: #2b323d;
+  --accent: #6ea2ff; --mm: #f0a43a; --vp: #6ea2ff; --gui: #4fc68e; --can: #b48af0; --can-bg: #2c1f42; --bad: #ff7a6e; --code-bg: #1f252f;
+    --mm-bg: #3a2a12; --vp-bg: #18284a; --gui-bg: #123423; --bad-bg: #43201d; --note-bg: #3a3220; --paper: #f4f6f9;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 15.5px; line-height: 1.65;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.page { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 48px; padding-block: 40px 80px; }
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 13.5px; }
+nav.toc p { font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: toc; }
+main ol { padding-left: 22px; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: block; padding: 4px 8px; border-radius: 4px; color: var(--muted); text-decoration: none; }
+nav.toc a::before { content: counter(toc) ". "; color: var(--line); font-variant-numeric: tabular-nums; }
+nav.toc a:hover, nav.toc a:focus-visible { color: var(--ink); background: var(--code-bg); outline: none; }
+main { min-width: 0; max-width: 820px; }
+
+header.doc { border-bottom: 1px solid var(--line); padding-bottom: 28px; margin-bottom: 8px; }
+.eyebrow { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 0; }
+h1 { font-size: 34px; line-height: 1.2; margin: 6px 0 12px; font-weight: 700; text-wrap: balance; letter-spacing: -.01em; }
+.lede { font-size: 17px; color: var(--muted); margin: 0; max-width: 65ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 18px; font-size: 13px; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 600; }
+
+section { padding-top: 36px; }
+h2 { font-size: 23px; margin: 0 0 14px; font-weight: 700; text-wrap: balance; display: flex; gap: 12px; align-items: baseline; }
+h2 .n { font-family: var(--font-mono); font-size: 14px; color: var(--accent); font-weight: 600; }
+h3 { font-size: 17px; margin: 26px 0 8px; font-weight: 600; }
+p, li { max-width: 68ch; }
+a { color: var(--accent); }
+code, pre, kbd { font-family: var(--font-mono); font-size: .86em; }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+pre { background: var(--code-bg); padding: 14px 16px; border-radius: 6px; overflow-x: auto; line-height: 1.5; margin: 12px 0; }
+pre code { background: none; padding: 0; font-size: 13px; }
+pre .c { color: var(--muted); }
+kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--surface); }
+
+.tbl { overflow-x: auto; margin: 12px 0; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+th { font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--code-bg); }
+tr:last-child td { border-bottom: none; }
+td code { white-space: nowrap; }
+p code, li code { overflow-wrap: anywhere; }
+
+.proc { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; white-space: nowrap; }
+.proc::before { content: ""; width: 9px; height: 9px; border-radius: 2px; background: currentColor; }
+.mm { color: var(--mm); } .vp { color: var(--vp); } .gui { color: var(--gui); } .can { color: var(--can); }
+.tag { font-size: 11.5px; font-weight: 600; letter-spacing: .04em; padding: 1px 7px; border-radius: 10px; border: 1px solid currentColor; white-space: nowrap; }
+.tag.new { color: var(--gui); } .tag.mod { color: var(--mm); } .tag.bug { color: var(--bad); } .tag.ok { color: var(--gui); }
+
+.figure { margin: 16px 0; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; overflow-x: auto; }
+.figure svg { display: block; width: 100%; min-width: 640px; height: auto; }
+.figure figcaption, figure figcaption { font-size: 13px; color: var(--muted); margin-top: 10px; }
+figure { margin: 16px 0; }
+figure img { display: block; border-radius: 6px; border: 1px solid var(--line); max-width: 100%; }
+.svg-ink { fill: var(--ink); } .svg-muted { fill: var(--muted); }
+.svg-box { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+.svg-line { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+.svg-mm { stroke: var(--mm); } .svg-vp { stroke: var(--vp); } .svg-gui { stroke: var(--gui); }
+.fill-mm { fill: var(--mm); } .fill-vp { fill: var(--vp); } .fill-gui { fill: var(--gui); } .fill-can { fill: var(--can); }
+svg text { font-family: var(--font-body); }
+svg .mono { font-family: var(--font-mono); }
+
+.callout { border: 1px solid var(--line); border-left: 4px solid var(--accent); background: var(--surface); padding: 12px 16px; border-radius: 6px; margin: 14px 0; }
+.callout.warn { border-left-color: var(--bad); }
+.callout p { margin: 4px 0; }
+.result { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 14px 0; }
+.result div { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
+.result b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; }
+.result span { font-size: 12.5px; color: var(--muted); }
+ul.checks { padding-left: 20px; }
+
+
+.ext-box { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 3; }
+.frame { fill: none; stroke-width: 1.5; }
+.frame-mm { stroke: var(--mm); } .frame-vp { stroke: var(--vp); } .frame-gui { stroke: var(--gui); } .frame-can { stroke: var(--can); }
+.blk { stroke-width: 1.4; }
+.blk-mm { fill: var(--mm-bg); stroke: var(--mm); } .blk-vp { fill: var(--vp-bg); stroke: var(--vp); } .blk-gui { fill: var(--gui-bg); stroke: var(--gui); } .blk-can { fill: var(--can-bg); stroke: var(--can); }
+.vwidget { fill: var(--surface); stroke: var(--gui); stroke-width: 1.2; stroke-dasharray: 5 3; }
+.bus { fill: var(--code-bg); stroke: var(--muted); stroke-width: 1.2; }
+.dot { fill: var(--ink); }
+.st { stroke-width: 1.6; }
+.st-mm { fill: var(--mm-bg); stroke: var(--mm); } .st-vp { fill: var(--vp-bg); stroke: var(--vp); } .st-bad { fill: var(--bad-bg); stroke: var(--bad); }
+.note { fill: var(--note-bg); stroke: var(--mm); stroke-width: 1; }
+.figure.mmd { background: var(--paper); }
+.figure.mmd svg { min-width: 720px; }
+.figure.narrow svg { min-width: 0; max-width: 680px !important; margin: 0 auto; }
+
+@media (max-width: 860px) {
+  .page { grid-template-columns: minmax(0, 1fr); gap: 8px; padding-block: 24px 60px; }
+  nav.toc { position: static; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+  nav.toc ol { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  h1 { font-size: 27px; }
+}
+@media (max-width: 600px) { td code { white-space: normal; overflow-wrap: anywhere; } }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+/* added 05/11/2026: shared by the 4 docs */
+.docnav { display:flex; flex-wrap:wrap; gap:6px; margin: 0 0 18px; font-size: 13px; }
+.docnav a { padding: 4px 10px; border:1px solid var(--line); border-radius: 14px; color: var(--muted); text-decoration:none; background: var(--surface); }
+.docnav a.on { color: var(--accent); border-color: var(--accent); font-weight: 600; }
+.callout.ok { border-left-color: var(--gui); }
+.callout.note { border-left-color: var(--mm); }
+.steps { counter-reset: s; list-style: none; padding: 0; margin: 8px 0 16px; }
+.steps > li { counter-increment: s; position: relative; padding: 2px 0 10px 38px; }
+.steps > li::before { content: counter(s); position: absolute; left: 0; top: 2px; width: 26px; height: 26px; border-radius: 50%; background: var(--can); color: #fff; font-weight: 700; font-size: 13px; display: grid; place-items: center; }
+kbd { border: 1px solid var(--line); border-bottom-width: 2px; padding: 0 5px; border-radius: 4px; background: var(--surface); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; }
+.card h4 { margin: 0 0 6px; font-size: 15px; }
+.tag.no { color: var(--mm); }
+img.shot { width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--line); display:block; }
+pre .in { color: var(--can); font-weight: 600; } pre .ok { color: var(--gui); font-weight: 600; } pre .err { color: var(--bad); font-weight: 600; }
+tr.grp td { background: var(--code-bg); font-weight: 600; color: var(--muted); font-size: 12.5px; }
+@media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="page">
+<nav class="toc" aria-label="Mục lục"><p>Mục lục</p><ol><li><a href="#tong-quan">Tổng quan, linh kiện</a></li><li><a href="#pi">Raspberry Pi 4</a></li><li><a href="#can-wiring">Sơ đồ đấu nối CAN</a></li><li><a href="#pi-mcp">Pi ↔ MCP2515</a></li><li><a href="#uno-mcp">UNO ↔ MCP2515</a></li><li><a href="#pc-uno">PC ↔ UNO</a></li><li><a href="#bus">Bus CAN</a></li><li><a href="#checklist">Checklist phần cứng</a></li><li><a href="#bai-hoc">Lỗi phần cứng đã gặp</a></li></ol></nav>
+<main>
+<nav class="docnav" aria-label="Tài liệu"><a href="ojt-architecture.html" class="">Kiến trúc & API</a><a href="ojt-hardware.html" class="on">Phần cứng</a><a href="ojt-build-deploy.html" class="">Build & triển khai</a><a href="ojt-test.html" class="">Kiểm thử</a></nav>
+<header class="doc"><p class="eyebrow">meta-ojt · Raspberry Pi 4 · Arduino UNO · MCP2515</p><h1>Kết nối phần cứng</h1><p class="lede">Mọi đấu nối của hệ thống ở một chỗ: Raspberry Pi 4 với màn hình, USB, mạng và module CAN; Arduino UNO với module CAN; bus CAN giữa hai node; PC với UNO. Kèm checklist xác nhận và các lỗi phần cứng đã gặp.</p><div class="meta"><span>Pi 4 · SPI0 · GPIO25</span><span>Arduino UNO R3 · D10–D13 · D2</span><span>CAN 500 kbit/s · 120 Ω × 2</span><span>Cập nhật 05/11/2026</span></div></header>
+<section id="tong-quan">
+<h2><span class="n">01</span>Tổng quan và linh kiện</h2>
+<p>Hệ thống có 3 phần nối với nhau: <b>PC</b> (Windows) ⇄ cáp USB ⇄ <b>Arduino UNO + module MCP2515</b> ⇄ bus CAN (2 dây) ⇄ <b>module MCP2515 + Raspberry Pi 4</b>. Pi có thêm màn hình, USB chứa video, mạng Ethernet. PC không nối thẳng vào bus CAN: mọi lệnh đi qua UNO.</p>
+<div class="figure"><svg viewBox="0 0 960 300" role="img" aria-label="PC nối USB với Arduino UNO, UNO nối SPI với MCP2515, hai MCP2515 nối CAN_H CAN_L, MCP2515 thứ hai nối SPI với Raspberry Pi">
+  <!-- PC -->
+  <rect style="fill:var(--surface);stroke:var(--line);stroke-width:1.5" x="10" y="100" width="120" height="90" rx="8"/>
+  <text class="svg-ink" x="70" y="135" text-anchor="middle" font-weight="700">PC</text>
+  <text x="70" y="157" text-anchor="middle" class="svg-muted" font-size="12">CAN Monitor / PuTTY</text>
+  <text x="70" y="173" text-anchor="middle" class="svg-muted" font-size="12">COMx 115200</text>
+  <!-- USB -->
+  <line fill="none" stroke-width="2" x1="130" y1="145" x2="190" y2="145" stroke="var(--muted)" stroke-dasharray="6 4"/>
+  <text x="160" y="135" text-anchor="middle" font-size="12" class="svg-muted">USB</text>
+  <!-- UNO -->
+  <rect style="fill:var(--gui-bg);stroke:var(--gui);stroke-width:2" x="190" y="80" width="170" height="130" rx="10"/>
+  <text class="svg-ink" x="275" y="110" text-anchor="middle" font-weight="700">Arduino UNO R3</text>
+  <text x="275" y="130" text-anchor="middle" font-size="12" class="svg-muted">5 V logic</text>
+  <text x="275" y="155" text-anchor="middle" font-size="12" class="svg-ink mono">D13 D12 D11 D10 D2</text>
+  <text x="275" y="175" text-anchor="middle" font-size="12" class="svg-ink mono">5V GND</text>
+  <text x="275" y="195" text-anchor="middle" font-size="11" class="svg-muted">(nút D4, LED D5–D8 tuỳ chọn)</text>
+  <!-- SPI -->
+  <line fill="none" stroke-width="2" x1="360" y1="145" x2="410" y2="145" stroke="var(--gui)"/>
+  <text class="svg-ink" x="385" y="135" text-anchor="middle" font-size="12">SPI</text>
+  <!-- MCP A -->
+  <rect style="fill:var(--can-bg);stroke:var(--can);stroke-width:2" x="410" y="95" width="130" height="100" rx="8"/>
+  <text class="svg-ink" x="475" y="125" text-anchor="middle" font-weight="700">MCP2515 #1</text>
+  <text x="475" y="145" text-anchor="middle" font-size="12" class="svg-muted">TJA1050, VCC 5 V</text>
+  <text x="475" y="165" text-anchor="middle" font-size="12" class="svg-muted">J1 120 Ω: ON</text>
+  <!-- CAN bus -->
+  <line fill="none" stroke-width="2" x1="540" y1="130" x2="640" y2="130" stroke="var(--can)"/>
+  <line fill="none" stroke-width="2" x1="540" y1="160" x2="640" y2="160" stroke="var(--can)" stroke-dasharray="3 3"/>
+  <text x="590" y="122" text-anchor="middle" font-size="12" class="svg-ink mono">CAN_H</text>
+  <text x="590" y="178" text-anchor="middle" font-size="12" class="svg-ink mono">CAN_L</text>
+  <text x="590" y="222" text-anchor="middle" font-size="11" class="svg-muted">dây xoắn đôi, 500 kbit/s</text>
+  <!-- MCP B -->
+  <rect style="fill:var(--can-bg);stroke:var(--can);stroke-width:2" x="640" y="95" width="130" height="100" rx="8"/>
+  <text class="svg-ink" x="705" y="125" text-anchor="middle" font-weight="700">MCP2515 #2</text>
+  <text x="705" y="145" text-anchor="middle" font-size="12" class="svg-muted">logic 3.3 V (phần 04)</text>
+  <text x="705" y="165" text-anchor="middle" font-size="12" class="svg-muted">J1 120 Ω: ON</text>
+  <!-- SPI Pi -->
+  <line fill="none" stroke-width="2" x1="770" y1="145" x2="820" y2="145" stroke="var(--bad)"/>
+  <text class="svg-ink" x="795" y="135" text-anchor="middle" font-size="12">SPI0</text>
+  <!-- Pi -->
+  <rect style="fill:var(--bad-bg);stroke:var(--bad);stroke-width:2" x="820" y="80" width="130" height="130" rx="10"/>
+  <text class="svg-ink" x="885" y="115" text-anchor="middle" font-weight="700">Raspberry Pi 4</text>
+  <text x="885" y="137" text-anchor="middle" font-size="12" class="svg-muted">can0 · can-service</text>
+  <text x="885" y="157" text-anchor="middle" font-size="12" class="svg-muted">video-player</text>
+  <text x="885" y="177" text-anchor="middle" font-size="12" class="svg-muted">màn 7" DSI</text>
+  <!-- GND -->
+  <path fill="none" stroke-width="2" d="M275 210 V265 H885 V210" stroke="var(--muted)"/>
+  <text class="svg-ink" x="580" y="285" text-anchor="middle" font-size="12">GND chung: GND UNO ↔ GND Pi (bắt buộc)</text>
+</svg><figcaption>Hình 1. Toàn bộ hệ thống. Cáp USB của UNO vừa cấp nguồn, vừa nạp code, vừa là cổng COM để gõ lệnh hoặc chạy OJT CAN Monitor.</figcaption></div>
+<h3>01.1 · Linh kiện</h3>
+<div class="tbl"><table>
+<thead><tr><th>Linh kiện</th><th>Số lượng</th><th>Ghi chú</th></tr></thead>
+<tbody>
+<tr><td>Raspberry Pi 4 + nguồn USB-C 5 V / 3 A + thẻ microSD ≥ 8 GB</td><td>1</td><td>Image Yocto (<a href="ojt-build-deploy.html">Build & triển khai</a>)</td></tr>
+<tr><td>Màn Raspberry Pi 7" Touch Display (DSI v1.1, 800×480) hoặc màn HDMI</td><td>1</td><td>Phần 02</td></tr>
+<tr><td>USB stick có file <code>.mp4</code> / <code>.mkv</code> (FAT32, exFAT, NTFS, ext4)</td><td>1</td><td></td></tr>
+<tr><td>Arduino UNO R3 (chính hãng hoặc clone CH340) + cáp USB-B</td><td>1</td><td>UNO R4 không dùng được</td></tr>
+<tr><td>Module MCP2515 + TJA1050 (5 V, crystal 8 MHz) cho phía UNO</td><td>1</td><td>Phần 05</td></tr>
+<tr><td>Module CAN logic 3.3 V cho phía Pi (MCP2515 + SN65HVD230 / MCP2562)</td><td>1</td><td>Phần 03–04. <b>Không</b> nối module 5 V thẳng vào GPIO Pi</td></tr>
+<tr><td>Dây cắm đực–cái ngắn (&lt; 20 cm)</td><td>~15</td><td>Dây lỏng là lỗi hay gặp nhất (phần 09)</td></tr>
+<tr><td>Dây xoắn đôi cho CAN_H / CAN_L + 1 dây GND chung</td><td>1 bộ</td><td>Phần 07</td></tr>
+<tr><td>Tuỳ chọn: nút nhấn, 4 LED + 4 điện trở 220 Ω (cho UNO); đồng hồ đo</td><td></td><td>Đồng hồ đo giúp debug rất nhiều</td></tr>
+</tbody></table></div>
+
+</section>
+<section id="pi">
+<h2><span class="n">02</span>Raspberry Pi 4: nguồn, màn hình, USB, mạng</h2>
+<div class="tbl"><table>
+<thead><tr><th>Kết nối</th><th>Cách nối</th><th>Ghi chú</th></tr></thead>
+<tbody>
+<tr><td>Nguồn</td><td>USB-C 5 V / 3 A</td><td>Nguồn yếu làm Pi reset khi phát video</td></tr>
+<tr><td>Màn DSI 7"</td><td>Cáp dẹt vào cổng <b>DISPLAY</b> (cạnh khe thẻ SD, không nhầm cổng CAMERA). Nguồn màn: chân <b>2 (5 V)</b> và <b>6 (GND)</b> của Pi sang board màn</td><td>Cần <code>RPI_EXTRA_CONFIG = "dtoverlay=vc4-kms-dsi-7inch"</code>. Không cắm HDMI cùng lúc. Màn không có loa: tiếng ra jack 3.5 mm. Cảm ứng hoạt động như chuột</td></tr>
+<tr><td>Màn HDMI (thay cho DSI)</td><td>Cổng micro-HDMI 0</td><td>Bỏ dòng <code>dtoverlay=vc4-kms-dsi-7inch</code></td></tr>
+<tr><td>USB stick</td><td>Cổng USB bất kỳ</td><td>Mỗi lần chỉ dùng 1 USB; USB thứ hai bị bỏ qua</td></tr>
+<tr><td>Ethernet</td><td>Cáp mạng nối PC hoặc switch</td><td><code>eth0</code> IP tĩnh <code>192.168.2.20/24</code> (recipe <code>network-config</code>). Đặt PC cùng dải, ví dụ <code>192.168.2.10</code>, rồi <code>ssh root@192.168.2.20</code></td></tr>
+<tr><td>UART console (tuỳ chọn)</td><td>Chân 8 (TX), 10 (RX), 6 (GND) với adapter USB-UART <b>3.3 V</b></td><td>115200 8N1, <code>ENABLE_UART = "1"</code></td></tr>
+<tr><td>Module CAN</td><td>SPI0 + GPIO25 (phần 04)</td><td>Chân 17/19/20/21/22/23/24</td></tr>
+</tbody></table></div>
+<p>Chân GPIO đã dùng: 2, 6 (nguồn màn) · 8, 10 (UART) · 17, 19, 20, 21, 22, 23, 24 (CAN). Các chân khác còn trống.</p>
+
+</section>
+<section id="can-wiring">
+<h2><span class="n">03</span>Sơ đồ đấu nối CAN</h2>
+<p>Mỗi node: vi điều khiển → <b>MCP2515</b> (CAN controller, nói chuyện qua SPI) → <b>transceiver</b> (đổi TX/RX logic thành tín hiệu vi sai CAN_H/CAN_L). Hai node nối với nhau bằng một cặp dây xoắn.</p>
+<div class="figure mmd"><svg role="img" aria-label="Sơ đồ đấu nối phần cứng CAN" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" font-family="Segoe UI, Arial, sans-serif" font-size="13" xmlns:c2pa="http://c2pa.org/manifest"><metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTo2OGQ4M2ZhNi1lYzYzLTRkZjMtYjE4Ni0xNzFlYmUxZDE5NjYAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaINhs+J3V2cLLDhgnkCrTPIAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDo3ZDlmMzA4ZC1kN2FmLTQxZDktOGIwZC0yNjBhMjMwMDg0MjdscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoc5tQ73M47cfZjoSPU2YyZgAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggQpMorPfDzaCIl2q+3x5Z0S9teTuRFWTWpoUprm+C9h2kZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaGuFASjhaLeEI48zSMTk5jgAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRNAAAAAAAAAAAAAAAAAGRoYXNoWCANgWW+l7I+n7LKIWuFVXEoPtWNkv0oDaukr1stRji8imRuYW1lbmp1bWJmIG1hbmlmZXN0amV4Y2x1c2lvbnOBomVzdGFydBi3Zmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjY4ZDgzZmE2LWVjNjMtNGRmMy1iMTg2LTE3MWViZTFkMTk2Ni9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjE5Y2MyN2UzLWM1ZjgtNDNjMi04ZmFkLTYwZjU3NGU4YWM5M3JjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCBCkyis98PNoIiXar7fHlnRL215O5EVZNamhSmub4L2HaJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFgg7dqf2lLEElV8biqO0qPZDwytSEpsAR7KIm9q8ZDbPh+iY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggZXrSjaU5dhn207y5CttMF0Oo9WpI4xcoWkmNrF6vA0p0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQBM36gmO4FE8PDfrHJOgejuyd/qtQtLYAEm70xjnVxNwHKOkLTszfEMETQLNBtybNYYtkAQ7pJtT6agyX3QWDv4=</c2pa:manifest></metadata>
+  
+  <defs>
+    <marker id="cw-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+    </marker>
+    <style>
+      .cw-box{fill:#fff;stroke:#333;stroke-width:1.5}
+      .cw-mcu{fill:#e8f1fb;stroke:#2b6cb0;stroke-width:1.8}
+      .cw-pi{fill:#fbecee;stroke:#b83242;stroke-width:1.8}
+      .cw-can{fill:#eef8ee;stroke:#2f855a;stroke-width:1.8}
+      .cw-t{font-weight:600;font-size:15px}
+      .cw-s{font-size:12px;fill:#444}
+      .cw-w{stroke-width:2;fill:none}
+      .cw-spi{stroke:#2b6cb0}
+      .cw-int{stroke:#d69e2e;stroke-dasharray:6 3}
+      .cw-pwr{stroke:#c53030}
+      .cw-gnd{stroke:#222}
+      .cw-canh{stroke:#dd6b20;stroke-width:3}
+      .cw-canl{stroke:#2c7a7b;stroke-width:3}
+      .cw-warn{fill:#fff5f5;stroke:#c53030;stroke-width:1.5}
+    </style>
+  </defs>
+
+  <text x="600" y="28" text-anchor="middle" font-size="18" font-weight="700">OJT CAN wiring (UNO 5 V logic · Pi 3.3 V logic · 500 kbit/s)</text>
+
+  
+  <rect x="20" y="60" width="240" height="330" rx="8" class="cw-mcu"/>
+  <text x="140" y="84" text-anchor="middle" class="cw-t">Arduino UNO R3</text>
+  <text x="140" y="102" text-anchor="middle" class="cw-s">test node (sends CMD)</text>
+  <g class="cw-s">
+    <text x="36" y="140">D13  SCK</text>
+    <text x="36" y="170">D11  MOSI</text>
+    <text x="36" y="200">D12  MISO</text>
+    <text x="36" y="230">D10  CS (output)</text>
+    <text x="36" y="260">D2   INT (input pull-up)</text>
+    <text x="36" y="290">5V</text>
+    <text x="36" y="320">GND</text>
+    <text x="36" y="356">USB = COM port (D0/D1: keep free)</text>
+    <text x="36" y="374">optional: button D4, LEDs D5..D8</text>
+  </g>
+
+  <rect x="330" y="110" width="140" height="230" rx="6" class="cw-box"/>
+  <text x="400" y="132" text-anchor="middle" class="cw-t">MCP2515</text>
+  <text x="400" y="148" text-anchor="middle" class="cw-s">VDD 5 V, crystal 8 MHz</text>
+  <g class="cw-s">
+    
+    <text x="340" y="170">SCK</text><text x="340" y="200">SI</text><text x="340" y="230">SO</text>
+    <text x="340" y="260">CS</text><text x="340" y="290">INT</text><text x="340" y="320">VDD/GND</text>
+    <text x="420" y="200">TXCAN</text><text x="420" y="240">RXCAN</text>
+  </g>
+
+  
+  <path d="M220 136 H300 V166 H335" class="cw-w cw-spi" marker-end="url(#cw-a)"/>
+  <path d="M220 166 H290 V196 H335" class="cw-w cw-spi" marker-end="url(#cw-a)"/>
+  <path d="M335 226 H280 V196 H222" class="cw-w cw-spi" marker-end="url(#cw-a)"/>
+  <path d="M220 226 H270 V256 H335" class="cw-w cw-spi" marker-end="url(#cw-a)"/>
+  <path d="M335 286 H260 V256 H222" class="cw-w cw-int" marker-end="url(#cw-a)"/>
+  <path d="M220 286 H250 V316 H335" class="cw-w cw-pwr"/>
+  <path d="M220 316 H240 V330 H335" class="cw-w cw-gnd"/>
+
+  <rect x="505" y="170" width="120" height="110" rx="6" class="cw-can"/>
+  <text x="565" y="192" text-anchor="middle" class="cw-t">Transceiver</text>
+  <text x="565" y="210" text-anchor="middle" class="cw-s">5 V type</text>
+  <text x="565" y="226" text-anchor="middle" class="cw-s">TJA1050</text>
+  <text x="565" y="242" text-anchor="middle" class="cw-s">(blue module)</text>
+  <path d="M470 196 H505" class="cw-w cw-spi" marker-end="url(#cw-a)"/>
+  <path d="M505 236 H470" class="cw-w cw-spi" marker-end="url(#cw-a)"/>
+  <text x="488" y="188" text-anchor="middle" class="cw-s">TXD</text>
+  <text x="488" y="254" text-anchor="middle" class="cw-s">RXD</text>
+
+  
+  <rect x="940" y="60" width="240" height="330" rx="8" class="cw-pi"/>
+  <text x="1060" y="84" text-anchor="middle" class="cw-t">Raspberry Pi 4</text>
+  <text x="1060" y="102" text-anchor="middle" class="cw-s">can0 (SocketCAN), can-service</text>
+  <g class="cw-s">
+    <text x="956" y="140">pin 23  GPIO11 SPI0_SCLK</text>
+    <text x="956" y="170">pin 19  GPIO10 SPI0_MOSI</text>
+    <text x="956" y="200">pin 21  GPIO9  SPI0_MISO</text>
+    <text x="956" y="230">pin 24  GPIO8  SPI0_CE0</text>
+    <text x="956" y="260">pin 22  GPIO25 (INT)</text>
+    <text x="956" y="290">pin 17  3V3</text>
+    <text x="956" y="320">pin 20  GND</text>
+    <text x="956" y="356">DSI display: pins 2 / 6 (5V/GND)</text>
+    <text x="956" y="374">UART: pins 8 / 10 (unchanged)</text>
+  </g>
+
+  <rect x="730" y="110" width="140" height="230" rx="6" class="cw-box"/>
+  <text x="800" y="132" text-anchor="middle" class="cw-t">MCP2515</text>
+  <text x="800" y="148" text-anchor="middle" class="cw-s">VDD 3.3 V, crystal 8/16 MHz</text>
+  <g class="cw-s">
+    <text x="830" y="170">SCK</text><text x="840" y="200">SI</text><text x="840" y="230">SO</text>
+    <text x="840" y="260">CS</text><text x="836" y="290">INT</text><text x="808" y="320">VDD/GND</text>
+    <text x="736" y="200">TXCAN</text><text x="736" y="240">RXCAN</text>
+  </g>
+  <path d="M950 136 H900 V166 H865" class="cw-w cw-spi" marker-end="url(#cw-a)"/>
+  <path d="M950 166 H910 V196 H865" class="cw-w cw-spi" marker-end="url(#cw-a)"/>
+  <path d="M865 226 H920 V196 H950" class="cw-w cw-spi" marker-end="url(#cw-a)"/>
+  <path d="M950 226 H930 V256 H865" class="cw-w cw-spi" marker-end="url(#cw-a)"/>
+  <path d="M865 286 H940 V256 H950" class="cw-w cw-int" marker-end="url(#cw-a)"/>
+  <path d="M950 286 H935 V316 H870" class="cw-w cw-pwr"/>
+  <path d="M950 316 H945 V330 H870" class="cw-w cw-gnd"/>
+
+  
+
+  
+  <rect x="80" y="440" width="1040" height="150" rx="8" fill="#fafafa" stroke="#999" stroke-dasharray="4 3"/>
+  <text x="600" y="462" text-anchor="middle" class="cw-t">CAN bus (twisted pair) — 120 Ω at BOTH ends, common GND</text>
+
+  <line x1="200" y1="500" x2="1000" y2="500" class="cw-canh"/>
+  <line x1="200" y1="540" x2="1000" y2="540" class="cw-canl"/>
+  <text x="600" y="494" text-anchor="middle" class="cw-s" fill="#dd6b20">CAN_H</text>
+  <text x="600" y="558" text-anchor="middle" class="cw-s" fill="#2c7a7b">CAN_L</text>
+  <line x1="200" y1="575" x2="1000" y2="575" class="cw-w cw-gnd"/>
+  <text x="600" y="590" text-anchor="middle" class="cw-s">GND reference (UNO GND ↔ Pi GND)</text>
+
+  
+  <rect x="180" y="505" width="40" height="30" class="cw-box"/><text x="200" y="525" text-anchor="middle" class="cw-s">120Ω</text>
+  <line x1="200" y1="500" x2="200" y2="505" class="cw-w cw-gnd"/><line x1="200" y1="535" x2="200" y2="540" class="cw-w cw-gnd"/>
+  <rect x="980" y="505" width="40" height="30" class="cw-box"/><text x="1000" y="525" text-anchor="middle" class="cw-s">120Ω</text>
+  <line x1="1000" y1="500" x2="1000" y2="505" class="cw-w cw-gnd"/><line x1="1000" y1="535" x2="1000" y2="540" class="cw-w cw-gnd"/>
+
+  
+  <path d="M550 280 V420 H300 V500" class="cw-w cw-canh"/>
+  <path d="M580 280 V430 H320 V540" class="cw-w cw-canl"/>
+  <text x="430" y="414" class="cw-s" fill="#dd6b20">CANH</text>
+  <text x="430" y="444" class="cw-s" fill="#2c7a7b">CANL</text>
+
+  
+
+  
+  <rect x="660" y="350" width="120" height="70" rx="6" class="cw-can"/>
+  <text x="720" y="372" text-anchor="middle" class="cw-t">Transceiver</text>
+  <text x="720" y="390" text-anchor="middle" class="cw-s">3.3 V type (Pi side)</text>
+  <path d="M736 196 H700 V350" class="cw-w cw-spi" marker-end="url(#cw-a)"/>
+  <path d="M760 350 V250" class="cw-w cw-spi" marker-end="url(#cw-a)"/>
+  <text x="690" y="300" text-anchor="end" class="cw-s">TXD</text>
+  <text x="768" y="300" class="cw-s">RXD</text>
+  <path d="M690 420 V480 H880 V500" class="cw-w cw-canh"/>
+  <path d="M750 420 V470 H900 V540" class="cw-w cw-canl"/>
+
+  
+  <g transform="translate(20,620)">
+    <line x1="0" y1="8" x2="30" y2="8" class="cw-w cw-spi"/><text x="36" y="12" class="cw-s">SPI / TXD-RXD</text>
+    <line x1="190" y1="8" x2="220" y2="8" class="cw-w cw-int"/><text x="226" y="12" class="cw-s">INT (active low)</text>
+    <line x1="350" y1="8" x2="380" y2="8" class="cw-w cw-pwr"/><text x="386" y="12" class="cw-s">VCC</text>
+    <line x1="450" y1="8" x2="480" y2="8" class="cw-w cw-gnd"/><text x="486" y="12" class="cw-s">GND</text>
+  </g>
+  <rect x="20" y="645" width="1160" height="62" rx="6" class="cw-warn"/>
+  <text x="36" y="667" class="cw-s" fill="#c53030" font-weight="600">Pi side only: the blue "MCP2515 + TJA1050" module runs at 5 V. Its SO and INT outputs are then 5 V, which is NOT safe for the Pi GPIO.</text>
+  <text x="36" y="685" class="cw-s" fill="#c53030">With VDD = 5 V the MCP2515 also needs VIH ≥ 0.8·VDD = 4 V, so 3.3 V SCK/SI/CS from the Pi are not guaranteed. On the Pi use a 3.3 V MCP2515 + 3.3 V transceiver,</text>
+  <text x="36" y="701" class="cw-s" fill="#c53030">or a bidirectional level shifter on SCK/SI/SO/CS/INT. Measure about 60 Ω between CAN_H and CAN_L with power OFF.</text>
+</svg><figcaption>Hình 2. Đấu nối chi tiết. Trái: UNO (logic 5 V, module TJA1050). Phải: Pi (logic 3.3 V, transceiver 3.3 V). Đúng 2 điện trở 120 Ω ở 2 đầu bus, GND chung.</figcaption></div>
+<div class="callout warn">
+<p><b>Phía Pi: cẩn thận mức điện áp.</b> Module xanh phổ biến "MCP2515 + TJA1050" chạy 5 V. Khi đó chân SO và INT ra 5 V, <b>không an toàn cho GPIO của Pi</b> (chỉ chịu 3.3 V). Ở VDD 5 V, MCP2515 còn cần mức cao ≥ 0.8·VDD = 4 V, nên tín hiệu 3.3 V từ Pi không đảm bảo.</p>
+<p>Nên dùng (theo thứ tự): module 3.3 V (MCP2515 + SN65HVD230/TCAN33x); hoặc MCP2515 3.3 V + MCP2562 (VDD 5 V, VIO 3.3 V); hoặc module 5 V + level shifter 2 chiều cho SCK/SI/SO/CS/INT.</p>
+</div>
+
+<div class="callout ok"><p><b>Phía UNO thì khác:</b> UNO là board 5 V, nên module xanh MCP2515 + TJA1050 (5 V) nối thẳng được, không cần chuyển mức. TJA1050 cần VCC ≥ 4.75 V: đo ngay trên chân VCC–GND của module.</p></div>
+</section>
+<section id="pi-mcp">
+<h2><span class="n">04</span>Raspberry Pi 4 ↔ MCP2515 (SPI0, CE0)</h2>
+
+<div class="tbl"><table>
+<thead><tr><th>MCP2515</th><th>Chân vật lý Pi</th><th>BCM GPIO</th><th>Chức năng</th></tr></thead>
+<tbody>
+<tr><td>VCC 3.3 V</td><td>17 (hoặc 1)</td><td>—</td><td>3V3</td></tr>
+<tr><td>GND</td><td>20 (hoặc 25)</td><td>—</td><td>GND</td></tr>
+<tr><td>SCK</td><td>23</td><td>GPIO11</td><td>SPI0_SCLK</td></tr>
+<tr><td>SI (MOSI)</td><td>19</td><td>GPIO10</td><td>SPI0_MOSI</td></tr>
+<tr><td>SO (MISO)</td><td>21</td><td>GPIO9</td><td>SPI0_MISO</td></tr>
+<tr><td>CS</td><td>24</td><td>GPIO8</td><td>SPI0_CE0</td></tr>
+<tr><td>INT</td><td>22</td><td>GPIO25</td><td><code>CAN0_INTERRUPT_PIN = "25"</code>, mức thấp = có frame</td></tr>
+</tbody></table></div>
+<p>Không đụng chân đang dùng: màn DSI lấy nguồn ở chân 2 (5 V) và 6 (GND); UART ở chân 8/10 (GPIO14/15).</p>
+
+<p>Cấu hình phần mềm tương ứng trong <code>meta-ojt/recipes-bsp/bootsfile/rpi-config_%.bbappend</code>: <code>ENABLE_SPI_BUS = "1"</code>, <code>ENABLE_CAN = "1"</code>, <code>CAN_OSCILLATOR = "8000000"</code> (theo chữ trên crystal module phía Pi), <code>CAN0_INTERRUPT_PIN = "25"</code>. Kết quả trong <code>config.txt</code>: <code>dtparam=spi=on</code> và <code>dtoverlay=mcp2515-can0,oscillator=8000000,interrupt=25</code>.</p>
+</section>
+<section id="uno-mcp">
+<h2><span class="n">05</span>Arduino UNO ↔ MCP2515</h2>
+
+<div class="tbl"><table>
+<thead><tr><th>Chân module MCP2515</th><th>Chân Arduino UNO</th><th>Ghi chú</th></tr></thead>
+<tbody>
+<tr><td><code>VCC</code></td><td><code>5V</code></td><td>TJA1050 cần 5 V. UNO là board 5 V nên module này hợp nhất.</td></tr>
+<tr><td><code>GND</code></td><td><code>GND</code></td><td></td></tr>
+<tr><td><code>SCK</code></td><td><code>D13</code></td><td>SPI cứng của UNO (cũng là chân ICSP 3)</td></tr>
+<tr><td><code>SI</code> (MOSI)</td><td><code>D11</code></td><td>ICSP 4</td></tr>
+<tr><td><code>SO</code> (MISO)</td><td><code>D12</code></td><td>ICSP 1</td></tr>
+<tr><td><code>CS</code></td><td><code>D10</code></td><td><code>APP_CS_PIN</code> trong <code>app_can.h</code></td></tr>
+<tr><td><code>INT</code></td><td><code>D2</code></td><td>Mức thấp = có frame. Code bật pull-up, đọc chân trong <code>loop()</code>.</td></tr>
+<tr class="grp"><td colspan="3">Tuỳ chọn (code vẫn chạy nếu không mắc)</td></tr>
+<tr><td>Nút nhấn</td><td><code>D4</code> → nút → <code>GND</code></td><td>Mỗi lần nhấn chạy một bước demo. Không cần điện trở (code dùng INPUT_PULLUP).</td></tr>
+<tr><td>LED xanh lá / cam / đỏ / xanh dương</td><td><code>D5</code> / <code>D6</code> / <code>D7</code> / <code>D8</code></td><td>Chân → 220 Ω → LED → GND. Nghĩa: Pi online / PLAYING / lệnh lỗi / đảo mỗi lần TX.</td></tr>
+</tbody></table></div>
+
+<p>Không nối gì vào <b>D0 / D1</b>: đó là đường TX/RX của cổng USB. LED <code>L</code> (D13) trên board dính với SCK nên nhấp nháy khi có SPI; LED trạng thái phải mắc ngoài (D5–D8).</p>
+<p>Cấu hình trong <code>arduino/ojt-can-node/app_can.h</code>: <code>APP_CS_PIN 10</code>, <code>APP_INT_PIN 2</code>, <code>APP_MCP2515_OSC_HZ 8000000UL</code> (đổi thành <code>16000000UL</code> nếu crystal module là 16 MHz, hoặc nạp <code>prebuilt/ojt-can-node-16mhz.hex</code>), <code>APP_CAN_BITRATE 500000UL</code>. SPI chạy 1 MHz, mode 0.</p>
+</section>
+<section id="pc-uno">
+<h2><span class="n">06</span>PC ↔ Arduino UNO (USB, cổng COM)</h2>
+<p>Chỉ cần <b>một cáp USB-B</b>. Trên UNO có sẵn chip USB-serial (ATmega16U2 trên board chính hãng, CH340 trên đa số clone). Cắm vào PC là Windows tạo một cổng COM; cùng cáp và cổng đó dùng để <b>nạp code</b> và để <b>gõ lệnh / chạy OJT CAN Monitor</b>.</p>
+<div class="tbl"><table>
+<thead><tr><th>Mục</th><th>Giá trị</th></tr></thead>
+<tbody>
+<tr><td>Tên trong Device Manager</td><td><i>Arduino Uno (COMx)</i> (chính hãng) hoặc <i>USB-SERIAL CH340 (COMx)</i> (clone; thiếu driver thì cài driver CH340 của WCH)</td></tr>
+<tr><td>Tìm số COM bằng lệnh</td><td>PowerShell: <code>Get-PnpDevice -Class Ports -PresentOnly | Select-Object FriendlyName</code></td></tr>
+<tr><td>Thông số</td><td>115200 baud, 8N1, không flow control</td></tr>
+<tr><td>Khi mở cổng</td><td>UNO tự reset (tín hiệu DTR) và in banner <code>=== OJT CAN test node … ===</code></td></tr>
+<tr><td>Một chương trình một lúc</td><td>Đóng PuTTY / <code>arduino-cli monitor</code> / OJT CAN Monitor trước khi nạp code</td></tr>
+</tbody></table></div>
+
+</section>
+<section id="bus">
+<h2><span class="n">07</span>Bus CAN: dây, termination, clock, bitrate</h2>
+
+<div class="tbl"><table>
+<thead><tr><th>Mục</th><th>Yêu cầu</th><th>Kiểm tra</th></tr></thead>
+<tbody>
+<tr><td>Dây</td><td>CAN_H ↔ CAN_H, CAN_L ↔ CAN_L, dây xoắn đôi</td><td>Đảo H/L thì không có ACK</td></tr>
+<tr><td>Termination</td><td>120 Ω ở <b>cả hai</b> đầu (jumper J1 trên mỗi module)</td><td>Tắt nguồn, đo H–L ≈ <b>60 Ω</b>. 120 Ω = thiếu 1 cái; ~40 Ω = thừa</td></tr>
+<tr><td>GND</td><td>GND UNO nối GND Pi</td><td>Bắt buộc, kể cả khi CAN là vi sai</td></tr>
+<tr><td>Crystal</td><td>Đúng với module của từng node</td><td>Mỗi node khai báo đúng crystal trên <b>module của nó</b> (đọc chữ 8.000 / 16.000). Pi: <code>CAN_OSCILLATOR</code>; UNO: <code>APP_MCP2515_OSC_HZ</code>. Hai module được khác crystal, miễn cùng bitrate</td></tr>
+<tr><td>Bitrate</td><td>500 kbit/s, sample point 75 %</td><td>Pi: <code>80-can0.network</code>; UNO: CNF 8 MHz <code>00 91 01</code>, 16 MHz <code>00 BA 03</code></td></tr>
+<tr><td>SPI</td><td>Pi 10 MHz (mặc định overlay), UNO 1 MHz</td><td>Dây SPI ngắn (&lt; 15 cm)</td></tr>
+</tbody></table></div>
+
+<h3>07.1 · Jumper J1 (120 Ω) để làm gì</h3>
+<p>J1 cắm điện trở 120 Ω giữa CAN_H và CAN_L (điện trở đầu cuối). Nó có 2 việc: (1) khi phát bit 1 (recessive) transceiver thả bus, chính điện trở kéo hai dây về bằng nhau (~2.5 V); (2) hấp thụ tín hiệu ở cuối dây để không dội ngược. Bus cần <b>đúng 2 điện trở ở 2 đầu</b>: hệ này có 2 node nên cả hai module đều cắm J1. Thêm node ở giữa thì node đó tháo J1.</p>
+<div class="tbl"><table>
+<thead><tr><th>Tắt nguồn, đo CAN_H – CAN_L</th><th>Nghĩa là</th></tr></thead>
+<tbody>
+<tr><td>≈ 60 Ω</td><td>Đúng (2 × 120 Ω song song)</td></tr>
+<tr><td>≈ 120 Ω</td><td>Một module chưa cắm J1</td></tr>
+<tr><td>≈ 40 Ω</td><td>Thừa một điện trở</td></tr>
+<tr><td>Rất lớn</td><td>Dây CAN_H hoặc CAN_L đứt</td></tr>
+</tbody></table></div>
+<h3>07.2 · Điện áp bus (bật nguồn, không node nào gửi)</h3>
+<div class="tbl"><table>
+<thead><tr><th>Điểm đo (so với GND)</th><th>Bus rảnh (đúng)</th><th>Bus kẹt dominant (lỗi)</th></tr></thead>
+<tbody>
+<tr><td>CAN_H</td><td>≈ 2.5 V</td><td>≈ 3.5 V</td></tr>
+<tr><td>CAN_L</td><td>≈ 2.5 V</td><td>≈ 1.5 V</td></tr>
+<tr><td>CAN_H – CAN_L</td><td>≈ 0 V</td><td>&gt; 1 V</td></tr>
+</tbody></table></div>
+
+</section>
+<section id="checklist">
+<h2><span class="n">08</span>Checklist xác nhận phần cứng</h2>
+<div class="tbl"><table>
+<thead><tr><th>#</th><th>Nội dung</th><th>Cách xác nhận</th><th>Kết quả</th></tr></thead>
+<tbody>
+<tr><td>C1</td><td>Transceiver và điện áp module phía Pi</td><td>Đọc mã chip 8 chân cạnh cổng vít H/L</td><td>Phải là loại 3.3 V (SN65HVD230 / MCP2562), hoặc có chuyển mức</td></tr>
+<tr><td>C2</td><td>Crystal module phía UNO / phía Pi</td><td>Đọc chữ trên crystal; banner UNO <code>crystal 8000000 Hz</code>; <code>oscillator=</code> trong <code>config.txt</code></td><td>8 MHz / 8 MHz <span class="tag ok">OK</span></td></tr>
+<tr><td>C3</td><td>Module UNO: VCC ≥ 4.75 V tại chân module</td><td>Đồng hồ đo</td><td>&gt; 5 V <span class="tag ok">OK</span></td></tr>
+<tr><td>C4</td><td>J1 cả hai module</td><td>Đo ≈ 60 Ω</td><td><span class="tag ok">OK</span></td></tr>
+<tr><td>C5</td><td>Cổng COM của UNO</td><td>Device Manager; banner khi mở cổng</td><td><span class="tag ok">OK</span> (COM28)</td></tr>
+<tr><td>C6</td><td>Kernel có <code>mcp251x</code></td><td><code>dmesg | grep mcp251x</code></td><td><code>MCP2515 successfully initialized</code> <span class="tag ok">OK</span></td></tr>
+<tr><td>C7</td><td>Dây SPI UNO chắc chắn</td><td>Lệnh <code>spitest</code> chạy vài lần</td><td><code>SPITEST PASS</code> <span class="tag ok">OK</span></td></tr>
+<tr><td>C8</td><td>Transceiver UNO hoạt động</td><td><code>selftest</code> dòng (5)</td><td><code>(5) transceiver OK</code> sau khi thay TJA1050 <span class="tag ok">OK</span></td></tr>
+<tr><td>C9</td><td>Dây INT (D2)</td><td><code>selftest</code>: <code>INT pin seen</code></td><td>Từng chập chờn, cắm lại chặt</td></tr>
+</tbody></table></div>
+
+</section>
+<section id="bai-hoc">
+<h2><span class="n">09</span>Lỗi phần cứng đã gặp</h2>
+<p>Các lỗi đã gặp khi lắp hệ thống này, theo thứ tự hay gặp. Lệnh chẩn đoán chi tiết: <a href="ojt-test.html#loi">Kiểm thử → Xử lý sự cố</a>.</p>
+<div class="tbl"><table>
+<thead><tr><th>Hiện tượng</th><th>Nguyên nhân</th><th>Cách nhận ra / sửa</th></tr></thead>
+<tbody>
+<tr><td><code>regs</code> ra lúc <code>FF</code> lúc <code>00</code>, <code>selftest</code> lúc PASS lúc FAIL</td><td>Dây cắm lỏng (MISO D12, SI D11, CS D10, INT D2)</td><td><code>spitest</code> + lắc từng dây; thay dây ngắn, cắm chặt</td></tr>
+<tr><td>Tháo VCC/GND mà module vẫn sáng, kết quả lạ (<code>init code 1</code>)</td><td>Module được "nuôi ngược" qua chân tín hiệu (~4.3 V qua diode bảo vệ)</td><td>Không chạy kiểu này; luôn nối đủ VCC 5V + GND</td></tr>
+<tr><td><code>selftest</code> PASS nhưng <code>(5) transceiver FAIL</code>, <code>play</code> báo <code>frame NOT sent</code> (TEC=0, TXB0CTRL=08) dù đã tháo bus</td><td>TJA1050 hỏng hoặc thiếu nguồn: chân RXD kẹt mức thấp, MCP2515 tưởng bus luôn bận</td><td>Đo TJA1050 chân 3 (VCC) ≈ 5 V, chân 4 (RXD) ≈ 5 V; RXD ≈ 0 V → thay chip / module</td></tr>
+<tr><td>UNO <code>no ACK … frame was sent</code>, Pi <code>No buffer space available</code>, <code>RX packets 0</code></td><td>Hai node không thấy nhau: dây bus, J1, GND chung, crystal/bitrate, hoặc transceiver một bên</td><td>Đo 60 Ω, H↔H L↔L, GND chung; <code>selftest</code> (5) mỗi bên</td></tr>
+<tr><td><code>INT pin not seen</code></td><td>Dây INT ↔ D2</td><td>Nếu lỏng, UNO không đọc được frame Pi gửi về</td></tr>
+<tr><td>Module 5 V nối vào Pi</td><td>Chân SO/INT ra 5 V vào GPIO 3.3 V</td><td>Có thể hỏng Pi; dùng module 3.3 V phía Pi</td></tr>
+</tbody></table></div>
+
+</section>
+
+</main>
+</div>
+</body>
+</html>

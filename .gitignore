@@ -1,12 +1,12 @@
-# Yocto build
-rasp/poky/build/
-rasp/poky/downloads/
-rasp/poky/sstate-cache/
-rasp/poky/tmp/
+# Yocto: layers cloned by scripts/setup-layers.sh + build output (build/, downloads/, sstate-cache/, tmp/)
+rasp/poky/
 
-# BitBake generated
-rasp/poky/bitbake/lib/bb/pysh/pyshtables.py
-rasp/poky/bitbake/lib/bb/tests/fetch-testdata/downloads/
+# can-service host tests, CMake builds on the PC
+build-test/
+build/
+
+# Arduino CLI build output
+arduino/ojt-can-node/build/
 
 # Python
 __pycache__/
